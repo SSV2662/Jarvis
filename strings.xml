@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Jarvis</string>
+    <string name="UI">Your Text Here </string>
+    <string name="S">Listen</string>
+    <string name="answer">Result</string>
+    <string name="serch">search</string>
+    <string name="Ans">Your Answer Here</string>
+    <string name="check">Check</string>
+    <string name="alrm"> </string>
+    <string name="setalrm">Hours</string>
+    <string name="minute">Minutes</string>
+    <string name="hrtaker">Take Hour</string>
+    <string name="Mintaker">Take Minutes</string>
+    <string name="un"> </string>
+    <string name="set">set alrm</string>
+    <string name="nm">Name</string>
+    <string name="num">Number</string>
+    <string name="add">Add Contact</string>
+
+
+</resources>
