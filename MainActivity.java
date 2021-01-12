@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,17 +18,21 @@ import android.provider.AlarmClock;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 
+import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
+
     EditText txt;
     TextToSpeech answer;
     Button resultbyJarvis;
@@ -34,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
     EditText Hour;
     EditText Minutes;
-
-
 
 
     // Speech Input
@@ -51,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
         }else {
             Toast.makeText(this, "You are not Supported",Toast.LENGTH_SHORT).show();
         }
+
+
+
 
 
     }
@@ -71,16 +78,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         txt= findViewById(R.id.EditText);
         resultbyJarvis = findViewById(R.id.button2);
-        final EditText cn = (EditText)findViewById(R.id.contactnumber);
-
-
-        // Speech Output
+        final String tospeak;
+        tospeak =txt.getText().toString();
         answer = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -90,12 +105,36 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             }
         });
         resultbyJarvis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tospeak = txt.getText().toString();
+                String tospeak;
+                tospeak =txt.getText().toString();
                 final EditText hr = (EditText)findViewById(R.id.Hour);
                 final EditText Min = (EditText)findViewById(R.id.Minute);
                 Button set = (Button)findViewById(R.id.button3);
@@ -120,7 +159,12 @@ public class MainActivity extends AppCompatActivity {
                     Date date =new Date();
                     String time = "Currently its "+formatter.format(date);
                     answer.speak(time,TextToSpeech.QUEUE_FLUSH,null);
-                }else if(tospeak.equals("which date is today")||tospeak.equals("what is the date today")||tospeak.equals("what is today's date")) {
+                }
+
+
+
+
+                else if(tospeak.equals("which date is today")||tospeak.equals("what is the date today")||tospeak.equals("what is today's date")) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd");
                     Date date = new Date();
                     String tdate = "Today's date is " + formatter.format(date);
@@ -133,14 +177,14 @@ public class MainActivity extends AppCompatActivity {
                 }else if(tospeak.equals("which day is father's day")){
                     String fd = "Twenty june";
                     answer.speak("Father's day is on "+fd,TextToSpeech.QUEUE_FLUSH,null);
-                }else if (tospeak.equals("When is mothers day")||tospeak.equals("which day is mothers day")){
+                }else if (tospeak.equals("When is mother's day")||tospeak.equals("which day is mothers day")){
                     String md = "Nine may";
                     answer.speak(md,TextToSpeech.QUEUE_FLUSH,null);
-                }else if(tospeak.equals("open YouTube")){
+                }else if(tospeak.equals("open youtube")){
                     String openingy = "Ok Sir, Opening YouTube";
                     answer.speak(openingy,TextToSpeech.QUEUE_FLUSH,null);
                     Intent webintent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://www.youtube.com/"));
+                            Uri.parse("https://www.youtube.com"));
                     try {
                         MainActivity.this.startActivity(webintent);
 
@@ -149,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         answer.speak(sry,TextToSpeech.QUEUE_FLUSH,null);
                     }
 
-                }else if(tospeak.equals("set an alarm")||tospeak.equals("set alarm")) {
+                }else if(tospeak.equals("set an alarm")||tospeak.equals("set alarm")){
                     hr.setVisibility(View.VISIBLE);
                     Min.setVisibility(View.VISIBLE);
                     set.setVisibility(View.VISIBLE);
@@ -159,13 +203,23 @@ public class MainActivity extends AppCompatActivity {
                             int hour = Integer.parseInt(hr.getText().toString());
                             int Minute = Integer.parseInt(Min.getText().toString());
                             Intent setthealrm = new Intent(AlarmClock.ACTION_SET_ALARM);
-                            setthealrm.putExtra(AlarmClock.EXTRA_HOUR, hour);
-                            setthealrm.putExtra(AlarmClock.EXTRA_MINUTES, Minute);
-                            if (hour <= 24 && Minute <= 60) {
+                            setthealrm.putExtra(AlarmClock.EXTRA_HOUR,hour);
+                            setthealrm.putExtra(AlarmClock.EXTRA_MINUTES,Minute);
+                            if(hour <= 24 && Minute<= 60){
                                 startActivity(setthealrm);
                             }
                         }
                     });
+                }else if(tospeak.substring(0,8).equals("remember")){
+                    EditText usersnotes = (EditText)findViewById(R.id.un);
+                    SharedPreferences remember = getApplicationContext().getSharedPreferences("com.example.jarvis", Context.MODE_PRIVATE);
+                    remember.edit().putString("To remember",txt.getText().toString()).apply();
+
+                    usersnotes.setText(remember.getString("To remember",""));
+
+                }else if(tospeak.equals("get my notes")){
+                    EditText usersnotes = (EditText)findViewById(R.id.un);
+                    answer.speak(usersnotes.toString(), TextToSpeech.QUEUE_FLUSH, null);
                 }else if (tospeak.equals("open photos")||tospeak.equals("open google photos")){
                     answer.speak("opening photos",TextToSpeech.QUEUE_FLUSH,null);
                     Intent photo = new Intent(Intent.ACTION_VIEW,
@@ -196,62 +250,37 @@ public class MainActivity extends AppCompatActivity {
                     }catch (ActivityNotFoundException mx){
                         answer.speak("Sorry, There is some problem in opening spotify",TextToSpeech.QUEUE_FLUSH,null);
                     }
-                }else if(tospeak.equals("open maps")){
-                    answer.speak("opening google maps",TextToSpeech.QUEUE_FLUSH,null);
-                    Intent map = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/@18.4942592,73.8164736,13z"));
+                }else if(tospeak.substring(0,17).equals("send a message to")){
+                    Integer eni = tospeak.length();
+                    String Message = tospeak.substring(37,eni);
+                    String phoneno = tospeak.substring(17,30);
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(phoneno,null,Message,null,null);
+                    answer.speak("A Message has been sent to"+phoneno,TextToSpeech.QUEUE_FLUSH,null);
+                    Toast.makeText(getApplicationContext(),phoneno,Toast.LENGTH_SHORT).show();
+                }else if(tospeak.substring(0,19).equals("good morning Jarvis")){
+                    SimpleDateFormat formatter = new SimpleDateFormat( "HH:mm");
+                    Date date =new Date();
+                    String time = formatter.format(date);
 
-                    try{
-                        MainActivity.this.startActivity(map);
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd");
+                    String currentDateandTime = sdf.format(new Date());
 
-                    }catch (ActivityNotFoundException mapx){
-                        answer.speak("Sorry, There is some problem in opening maps",TextToSpeech.QUEUE_FLUSH,null);
+                    String tosay = "Good Morning Sir. I am feeling that today's day is going to be exciting. Today's date is "+currentDateandTime+"and. Currently its "+time;
+                    answer.speak(tosay, TextToSpeech.QUEUE_FLUSH, null);
 
-                    }
-                }else if(tospeak.substring(0,4).equals("show")){
-                    int leng = tospeak.length();
-                    String location = tospeak.substring(5,leng);
-                    answer.speak("showing"+location,TextToSpeech.QUEUE_FLUSH,null);
-                    Intent usl = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/place/"+location));
-                    try {
-                        MainActivity.this.startActivity(usl);
-                    }catch (ActivityNotFoundException ulx){
-                        answer.speak("Sorry, There is some problem in showing"+location,TextToSpeech.QUEUE_FLUSH,null);
-                    }
-                }else if(tospeak.equals("open play store")|| tospeak.equals("open Play Store")){
-                    answer.speak("opening Play Store",TextToSpeech.QUEUE_FLUSH,null);
-                    Intent play = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://play.google.com/store"));
-                    try{
-                        MainActivity.this.startActivity(play);
-                    }catch (ActivityNotFoundException plx){
-                        answer.speak("Sorry, There is some problem in opening playstore",TextToSpeech.QUEUE_FLUSH,null);
-                    }
-                }else if(tospeak.equals("add a contact")){
 
-                    startActivity(new Intent(MainActivity.this,  Contacts.class));
-
-                }String func = txt.getText().toString();
-                 if (func.substring(0,4).equals("call")){
-                     int numberlength = func.length();
-
-                     String numbtodial = func.substring(5,numberlength);
-                     Intent call = new Intent(Intent.ACTION_CALL);
-                     call.setData((Uri.parse("tel:"+numbtodial)));
-                     startActivity(call);
                 }
 
-
-                else{
-                    answer.speak("sorry I  couldn't hear that",TextToSpeech.QUEUE_FLUSH,null);
-                }
-
-
-                Toast.makeText(getApplicationContext(),txt.toString(),Toast.LENGTH_SHORT).show();
 
             }
         });
+
+
+
+
+
+
     }
     public void onPAUse() {
         if (answer != null) {
@@ -263,8 +292,5 @@ public class MainActivity extends AppCompatActivity {
     }}
 
 
+
 // Speech Input
-
-
-
-
